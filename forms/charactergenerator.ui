@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CharacterGenerator</class>
+ <widget class="QDialog" name="CharacterGenerator">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>580</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>580</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>580</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Character generator</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../res.qrc">
+    <normaloff>:/assets/icons/matrix.png</normaloff>:/assets/icons/matrix.png</iconset>
+  </property>
+  <widget class="QLabel" name="result">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>260</y>
+     <width>341</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>result</string>
+   </property>
+  </widget>
+  <widget class="Matrix88" name="matrix88" native="true">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>40</y>
+     <width>210</width>
+     <height>210</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Matrix57" name="matrix57" native="true">
+   <property name="geometry">
+    <rect>
+     <x>211</x>
+     <y>40</y>
+     <width>135</width>
+     <height>190</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>10</y>
+     <width>171</width>
+     <height>253</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Pre-made characters</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QToolButton" name="addChar">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../res.qrc">
+          <normaloff>:/assets/icons/add.png</normaloff>:/assets/icons/add.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="editChar">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../res.qrc">
+          <normaloff>:/assets/icons/edit.png</normaloff>:/assets/icons/edit.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="deleteChar">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../res.qrc">
+          <normaloff>:/assets/icons/delete.png</normaloff>:/assets/icons/delete.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QListWidget" name="charsList"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>14</x>
+     <y>14</y>
+     <width>187</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Select matrix type</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="comboBox"/>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Matrix57</class>
+   <extends>QWidget</extends>
+   <header>headers\matrix57.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Matrix88</class>
+   <extends>QWidget</extends>
+   <header>headers\matrix88.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../res.qrc"/>
+ </resources>
+ <connections/>
+</ui>

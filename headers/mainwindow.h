@@ -15,6 +15,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_actionCharacter_generator_triggered();
+
 private:
     Ui::MainWindow *ui;
 };
