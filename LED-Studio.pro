@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         code/charactergenerator.cpp \
+        code/clickablelabel.cpp \
         code/main.cpp \
         code/mainwindow.cpp \
         code/matrix57.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
 
 HEADERS += \
     headers/charactergenerator.h \
+    headers/clickablelabel.h \
     headers/mainwindow.h \
     headers/matrix57.h \
     headers/matrix88.h
