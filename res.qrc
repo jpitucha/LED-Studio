@@ -4,5 +4,7 @@
         <file>assets/icons/delete.png</file>
         <file>assets/icons/edit.png</file>
         <file>assets/icons/matrix.png</file>
+        <file>assets/icons/blue_dot.png</file>
+        <file>assets/icons/gray_dot.png</file>
     </qresource>
 </RCC>

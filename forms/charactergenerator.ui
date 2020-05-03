@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>300</height>
+    <width>750</width>
+    <height>684</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,8 +18,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>550</width>
-    <height>300</height>
+    <width>750</width>
+    <height>1000</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>260</y>
+     <y>650</y>
      <width>341</width>
      <height>16</height>
     </rect>
@@ -42,33 +42,10 @@
     <string>result</string>
    </property>
   </widget>
-  <widget class="Matrix88" name="matrix88" native="true">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>1</x>
-     <y>40</y>
-     <width>210</width>
-     <height>210</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="Matrix57" name="matrix57" native="true">
-   <property name="geometry">
-    <rect>
-     <x>211</x>
-     <y>40</y>
-     <width>135</width>
-     <height>190</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>570</x>
      <y>10</y>
      <width>171</width>
      <height>253</height>
@@ -159,19 +136,392 @@
     </item>
    </layout>
   </widget>
+  <widget class="ClickableLabel" name="p1">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p2">
+   <property name="geometry">
+    <rect>
+     <x>38</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p3">
+   <property name="geometry">
+    <rect>
+     <x>65</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p4">
+   <property name="geometry">
+    <rect>
+     <x>92</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p5">
+   <property name="geometry">
+    <rect>
+     <x>119</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p6">
+   <property name="geometry">
+    <rect>
+     <x>146</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p7">
+   <property name="geometry">
+    <rect>
+     <x>173</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p8">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p11">
+   <property name="geometry">
+    <rect>
+     <x>281</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p12">
+   <property name="geometry">
+    <rect>
+     <x>308</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p9">
+   <property name="geometry">
+    <rect>
+     <x>227</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p10">
+   <property name="geometry">
+    <rect>
+     <x>254</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p15">
+   <property name="geometry">
+    <rect>
+     <x>389</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p17">
+   <property name="geometry">
+    <rect>
+     <x>443</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p19">
+   <property name="geometry">
+    <rect>
+     <x>497</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p16">
+   <property name="geometry">
+    <rect>
+     <x>416</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p20">
+   <property name="geometry">
+    <rect>
+     <x>524</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p13">
+   <property name="geometry">
+    <rect>
+     <x>335</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p14">
+   <property name="geometry">
+    <rect>
+     <x>362</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="ClickableLabel" name="p18">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>51</y>
+     <width>20</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Matrix57</class>
-   <extends>QWidget</extends>
-   <header>headers\matrix57.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Matrix88</class>
-   <extends>QWidget</extends>
-   <header>headers\matrix88.h</header>
-   <container>1</container>
+   <class>ClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>headers/clickablelabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>

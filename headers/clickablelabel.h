@@ -16,6 +16,7 @@ signals:
     void clicked();
 
 protected:
+    bool enabled = false;
     void mousePressEvent(QMouseEvent* event);
 
 };

@@ -11,6 +11,7 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
     matrixes.append("5x7");
     matrixes.append("8x8");
     this->ui->comboBox->addItems(matrixes);
+    this->ui->p1->setPixmap(QPixmap("://assets/icons/gray_dot.png"));
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
 }
 
@@ -49,10 +50,10 @@ void CharacterGenerator::updateResult() {
 
 void CharacterGenerator::loadMatrix(int matrix) {
     if (matrix == 0) {
-        ui->matrix88->setDisabled(true);
-        ui->matrix57->setEnabled(true);
+        //ui->matrix88->setDisabled(true);
+        //ui->matrix57->setEnabled(true);
     } else {
-        ui->matrix57->setDisabled(true);
-        ui->matrix88->setEnabled(true);
+        //ui->matrix57->setDisabled(true);
+        //ui->matrix88->setEnabled(true);
     }
 }
