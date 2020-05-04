@@ -19,22 +19,16 @@ SOURCES += \
         code/charactergenerator.cpp \
         code/clickablelabel.cpp \
         code/main.cpp \
-        code/mainwindow.cpp \
-        code/matrix57.cpp \
-        code/matrix88.cpp
+        code/mainwindow.cpp
 
 HEADERS += \
     headers/charactergenerator.h \
     headers/clickablelabel.h \
-    headers/mainwindow.h \
-    headers/matrix57.h \
-    headers/matrix88.h
+    headers/mainwindow.h
 
 FORMS += \
     forms/charactergenerator.ui \
-    forms/mainwindow.ui \
-    forms/matrix57.ui \
-    forms/matrix88.ui
+    forms/mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

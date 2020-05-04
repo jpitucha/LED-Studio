@@ -1,8 +1,9 @@
-#include "headers\charactergenerator.h"
+#include "headers/charactergenerator.h"
 #include "ui_charactergenerator.h"
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QDebug>
+#include "headers/clickablelabel.h"
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
@@ -11,8 +12,19 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
     matrixes.append("5x7");
     matrixes.append("8x8");
     this->ui->comboBox->addItems(matrixes);
-    this->ui->p1->setPixmap(QPixmap("://assets/icons/gray_dot.png"));
+    int row = 1;
+    int col = 1;
+    for(int i = 0; i < 256; i++) {
+        this->ui->gridLayout->addWidget(new ClickableLabel(this, i), row, col);
+        if (col < 16) {
+            col++;
+        } else {
+            col = 1;
+            row++;
+        }
+    }
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
+    this->ui->charsList->addItem(new QListWidgetItem(QIcon(QPixmap("://assets/icons/lock.png")), "Test"));
 }
 
 CharacterGenerator::~CharacterGenerator() {
