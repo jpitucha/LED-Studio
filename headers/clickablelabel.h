@@ -10,16 +10,19 @@ class ClickableLabel : public QLabel {
 
 public:
     explicit ClickableLabel(QWidget* parent = Q_NULLPTR, int id = 0, Qt::WindowFlags f = Qt::WindowFlags());
+    void setOn();
+    void setOff();
     ~ClickableLabel();
 
 signals:
-    void clicked();
+    void clicked(int);
 
-protected:
-    bool enabled = false;
+protected:    
     void mousePressEvent(QMouseEvent* event);
-    int id;
 
+private:
+    bool enabled = false;
+    int id;
 };
 
 #endif // CLICKABLELABEL_H

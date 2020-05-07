@@ -2,6 +2,7 @@
 #define CHARACTERGENERATOR_H
 
 #include <QDialog>
+#include "headers/clickablelabel.h"
 
 namespace Ui {
 class CharacterGenerator;
@@ -18,11 +19,17 @@ public:
 public slots:
     void reject();
     void loadMatrix(int);
+    void whenDotClicked(int);
 
 private slots:
     void on_addChar_clicked();
     void on_editChar_clicked();
     void on_deleteChar_clicked();
+    void on_moveLeftBtn_clicked();
+    void on_moveRightBtn_clicked();
+    void on_moveUpBtn_clicked();
+    void on_moveDownBtn_clicked();
+    void on_invertBtn_clicked();
 
 private:
     Ui::CharacterGenerator *ui;
@@ -34,7 +41,10 @@ private:
     unsigned char b6 = 255;
     unsigned char b7 = 255;
     unsigned char b8 = 255;
+    QList<uint16_t> values;
+    QList<ClickableLabel *> dots;
     void updateResult();
+    void updateMatrix();
 };
 
 #endif // CHARACTERGENERATOR_H

@@ -1,5 +1,4 @@
 #include "headers/clickablelabel.h"
-#include <QDebug>
 
 ClickableLabel::ClickableLabel(QWidget* parent, int id, Qt::WindowFlags f) : QLabel(parent) {
     setPixmap(QPixmap("://assets/icons/gray_dot.png"));
@@ -13,13 +12,19 @@ ClickableLabel::~ClickableLabel() {}
 
 void ClickableLabel::mousePressEvent(QMouseEvent* event) {
     if (enabled) {
-        setPixmap(QPixmap("://assets/icons/gray_dot.png"));
-        enabled = false;
-        qDebug() << id;
+        setOff();
     } else {
-        setPixmap(QPixmap("://assets/icons/blue_dot.png"));
-        enabled = true;
-        qDebug() << id;
+        setOn();
     }
-    emit clicked();
+    emit clicked(id);
+}
+
+void ClickableLabel::setOn() {
+    setPixmap(QPixmap("://assets/icons/blue_dot.png"));
+    enabled = true;
+}
+
+void ClickableLabel::setOff() {
+    setPixmap(QPixmap("://assets/icons/gray_dot.png"));
+    enabled = false;
 }
