@@ -30,6 +30,7 @@ private slots:
     void on_moveUpBtn_clicked();
     void on_moveDownBtn_clicked();
     void on_invertBtn_clicked();
+    void on_clearBtn_clicked();
 
 private:
     Ui::CharacterGenerator *ui;

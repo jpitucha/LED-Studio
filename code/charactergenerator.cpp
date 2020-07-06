@@ -6,9 +6,7 @@
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
-    for (int i = 0; i < 16; i++) {
-        values.append(0);
-    }
+    for (int i = 0; i < 16; i++) { values.append(0); }
     int row = 1;
     int col = 1;
     for(int i = 0; i < 256; i++) {
@@ -22,12 +20,9 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
             row++;
         }
     }
-    updateMatrix();
+    loadMatrix(0);
     updateResult();
-    QStringList matrixes;
-    matrixes.append("5x7");
-    matrixes.append("8x8");
-    this->ui->comboBox->addItems(matrixes);
+    this->ui->comboBox->addItems(QString("5x7;8x8").split(';'));
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
 }
 
@@ -80,7 +75,14 @@ void CharacterGenerator::loadMatrix(int matrix) {
         for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(false);
         for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(false);
         for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(false);
-        //TO DO: clear the data
+        for (int i = 0; i < values.size(); i++) {
+            uint16_t tmp = values.at(i);
+            tmp &= 0b1111111111000000;
+            values.replace(i, tmp);
+            values.replace(14, 0);
+            values.replace(15, 0);
+        }
+        updateMatrix();
     } else { //8x8
         for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(true);
         for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(true);
@@ -129,7 +131,12 @@ void CharacterGenerator::on_moveLeftBtn_clicked() {
 
 void CharacterGenerator::on_moveRightBtn_clicked() {
     for (int i = 0; i < values.size(); i++) {
-        values.replace(i, values.at(i) >> 1);
+        uint16_t tmp = values.at(i);
+        tmp = tmp >> 1;
+        if (ui->comboBox->currentText() == "5x7") {
+            tmp &= 0b1111111111000000;
+        }
+        values.replace(i, tmp);
     }
     updateMatrix();
 }
@@ -144,6 +151,10 @@ void CharacterGenerator::on_moveUpBtn_clicked() {
 void CharacterGenerator::on_moveDownBtn_clicked() {
     values.prepend(0);
     values.removeLast();
+    if (ui->comboBox->currentText() == "5x7") {
+        values.replace(14, 0);
+        values.replace(15, 0);
+    }
     updateMatrix();
 }
 
@@ -152,4 +163,8 @@ void CharacterGenerator::on_invertBtn_clicked() {
         values.replace(i, ~values.at(i));
     }
     updateMatrix();
+}
+
+void CharacterGenerator::on_clearBtn_clicked() {
+
 }
