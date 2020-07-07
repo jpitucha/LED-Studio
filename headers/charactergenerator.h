@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "headers/clickablelabel.h"
+#include <QPainter>
 
 namespace Ui {
 class CharacterGenerator;
@@ -14,6 +15,7 @@ class CharacterGenerator : public QDialog
 
 public:
     explicit CharacterGenerator(QWidget *parent = nullptr);
+    virtual void paintEvent(QPaintEvent *event);
     ~CharacterGenerator();
 
 public slots:

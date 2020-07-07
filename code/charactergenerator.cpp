@@ -3,6 +3,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include "headers/clickablelabel.h"
+#include <QSettings>
+#include <QDir>
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
@@ -24,6 +26,16 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
     updateResult();
     this->ui->comboBox->addItems(QString("5x7;8x8").split(';'));
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
+    QSettings predefinedChars(":/assets/predefined.ini", QSettings::IniFormat);
+}
+
+void CharacterGenerator::paintEvent(QPaintEvent *event) {
+    QPainter painter(this);
+    if (ui->comboBox->currentText() == "5x7") {
+        painter.drawRect(5, 45, 139, 197);
+    } else {
+        painter.drawRect(5, 45, 221, 226);
+    }
 }
 
 CharacterGenerator::~CharacterGenerator() {
@@ -83,6 +95,7 @@ void CharacterGenerator::loadMatrix(int matrix) {
             values.replace(15, 0);
         }
         updateMatrix();
+        update();
     } else { //8x8
         for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(true);
         for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(true);
@@ -98,6 +111,7 @@ void CharacterGenerator::loadMatrix(int matrix) {
         for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(true);
         for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(true);
         for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(true);
+        update();
     }
 }
 

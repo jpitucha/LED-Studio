@@ -12,5 +12,6 @@
         <file>assets/icons/arrow_left.png</file>
         <file>assets/icons/arrow_down.png</file>
         <file>assets/icons/arrow_right.png</file>
+        <file>assets/predefined.ini</file>
     </qresource>
 </RCC>
