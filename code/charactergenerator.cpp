@@ -5,6 +5,8 @@
 #include "headers/clickablelabel.h"
 #include <QSettings>
 #include <QDir>
+#include <QJsonObject>
+#include <QJsonArray>
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
@@ -26,7 +28,7 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
     updateResult();
     this->ui->comboBox->addItems(QString("5x7;8x8").split(';'));
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
-    QSettings predefinedChars(":/assets/predefined.ini", QSettings::IniFormat);
+
 }
 
 void CharacterGenerator::paintEvent(QPaintEvent *event) {
@@ -57,6 +59,50 @@ void CharacterGenerator::on_deleteChar_clicked() {
 void CharacterGenerator::reject() {
     this->deleteLater();
     QDialog::reject();
+}
+
+QJsonDocument CharacterGenerator::readPredefinedChars() {
+    QFile chars(":/assets/predefined.json");
+    if (!chars.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return QJsonDocument();
+    }
+    QByteArray contents;
+    contents = chars.readAll();
+    chars.close();
+    return QJsonDocument::fromJson(contents);
+}
+
+void CharacterGenerator::parsePredefinedChars() {
+    QJsonDocument document = readPredefinedChars();
+    if (!document.isNull()) {
+        QJsonObject mainObject = document.object();
+        QStringList mainKeys = mainObject.keys();
+        for (int i = 0; i < mainObject.length(); i++) { //iterate over chars
+            QMap<QString, QStringList> character;
+            QJsonObject currentObject = mainObject.value(mainKeys.at(i)).toObject();
+            QStringList currentObjectKeys = currentObject.keys();
+            bool protectedValue = true;
+            QStringList tmp;
+            for (int i = 0; i < currentObjectKeys.length(); i++) { //iterate over char properties
+                QStringList row;
+                if (currentObject.value(currentObjectKeys.at(i)).isBool()) {
+                    protectedValue = currentObject.value(currentObjectKeys.at(i)).toBool();
+                } else if (currentObject.value(currentObjectKeys.at(i)).isArray()) {
+                    QJsonArray values = currentObject.value(currentObjectKeys.at(i)).toArray();
+                    for (int i = 0; i < values.count(); i++) { //iterate over rows
+                        row.append(QString::number(values.at(i).toDouble()));
+                    }
+                    character.insert(currentObjectKeys.at(i), row);
+                }
+            }
+            protectedValue == true ? tmp.append("yes") : tmp.append("no");
+            character.insert("readonly", tmp);
+            tmp.clear();
+            tmp.append(mainKeys.at(i));
+            character.insert("name", tmp);
+            predefinedChars.append(character);
+        }
+    }
 }
 
 void CharacterGenerator::updateResult() {
@@ -177,8 +223,12 @@ void CharacterGenerator::on_invertBtn_clicked() {
         values.replace(i, ~values.at(i));
     }
     updateMatrix();
+    //add clearing extra data when selected 5x7 matrix type
 }
 
 void CharacterGenerator::on_clearBtn_clicked() {
-
+    for (int i = 0; i < values.size(); i++) {
+        values.replace(i, 0);
+    }
+    updateMatrix();
 }

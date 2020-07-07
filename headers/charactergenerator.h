@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "headers/clickablelabel.h"
 #include <QPainter>
+#include <QJsonDocument>
 
 namespace Ui {
 class CharacterGenerator;
@@ -46,6 +47,9 @@ private:
     unsigned char b8 = 255;
     QList<uint16_t> values;
     QList<ClickableLabel *> dots;
+    QList<QMap<QString, QStringList>> predefinedChars;
+    QJsonDocument readPredefinedChars();
+    void parsePredefinedChars();
     void updateResult();
     void updateMatrix();
 };
