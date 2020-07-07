@@ -50,6 +50,7 @@ private:
     QList<QMap<QString, QStringList>> predefinedChars;
     QJsonDocument readPredefinedChars();
     void parsePredefinedChars();
+    void fillInListWidget();
     void updateResult();
     void updateMatrix();
 };

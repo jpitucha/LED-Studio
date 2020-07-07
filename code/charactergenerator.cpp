@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDebug>
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
@@ -28,7 +29,8 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
     updateResult();
     this->ui->comboBox->addItems(QString("5x7;8x8").split(';'));
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
-
+    parsePredefinedChars();
+    fillInListWidget();
 }
 
 void CharacterGenerator::paintEvent(QPaintEvent *event) {
@@ -82,26 +84,39 @@ void CharacterGenerator::parsePredefinedChars() {
             QJsonObject currentObject = mainObject.value(mainKeys.at(i)).toObject();
             QStringList currentObjectKeys = currentObject.keys();
             bool protectedValue = true;
-            QStringList tmp;
-            for (int i = 0; i < currentObjectKeys.length(); i++) { //iterate over char properties
+            for (int j = 0; j < currentObjectKeys.length(); j++) { //iterate over char properties
                 QStringList row;
-                if (currentObject.value(currentObjectKeys.at(i)).isBool()) {
-                    protectedValue = currentObject.value(currentObjectKeys.at(i)).toBool();
-                } else if (currentObject.value(currentObjectKeys.at(i)).isArray()) {
-                    QJsonArray values = currentObject.value(currentObjectKeys.at(i)).toArray();
+                if (currentObject.value(currentObjectKeys.at(j)).isBool()) {
+                    protectedValue = currentObject.value(currentObjectKeys.at(j)).toBool();
+                } else if (currentObject.value(currentObjectKeys.at(j)).isArray()) {
+                    QJsonArray values = currentObject.value(currentObjectKeys.at(j)).toArray();
                     for (int i = 0; i < values.count(); i++) { //iterate over rows
                         row.append(QString::number(values.at(i).toDouble()));
                     }
-                    character.insert(currentObjectKeys.at(i), row);
+                    row.append(protectedValue == true ? "editable: no" : "editable: yes");
+                    row.append("name: " + mainKeys.at(i));
+                    character.insert(currentObjectKeys.at(j), row);
                 }
             }
-            protectedValue == true ? tmp.append("yes") : tmp.append("no");
-            character.insert("readonly", tmp);
-            tmp.clear();
-            tmp.append(mainKeys.at(i));
-            character.insert("name", tmp);
             predefinedChars.append(character);
         }
+    }
+}
+
+void CharacterGenerator::fillInListWidget() {
+    QString editable = "";
+    QString name = "";
+    for (int i = 0; i < predefinedChars.length(); i++) {
+        QStringList keys = predefinedChars.at(i).keys(); //keys of one character
+        for (int j = 0; j < keys.length(); j++) {
+            if (predefinedChars.at(i).value(keys.at(j)).startsWith("editable:")) {
+                editable = predefinedChars.at(i).value(keys.at(j)).at(j).split(" ").at(1);
+            } else if (predefinedChars.at(i).value(keys.at(j)).startsWith("name:")) {
+                name = predefinedChars.at(i).value(keys.at(j)).at(j).split(" ").at(1);
+            }
+        }
+        QString title = name + " " +  keys.at(i) + " (" + editable == "yes" ? "rw" : "ro";
+        qDebug() << title;
     }
 }
 
