@@ -106,17 +106,41 @@ void CharacterGenerator::parsePredefinedChars() {
 void CharacterGenerator::fillInListWidget() {
     QString editable = "";
     QString name = "";
-    for (int i = 0; i < predefinedChars.length(); i++) {
+    int indexEditable = 0;
+    int indexName = 0;
+    QList<QMap<QString, QStringList>> *tmp = new QList<QMap<QString, QStringList>>();
+    for (int i = 0; i < predefinedChars.length(); i++) { // 'A' 'a'
         QStringList keys = predefinedChars.at(i).keys(); //keys of one character
         for (int j = 0; j < keys.length(); j++) {
-            if (predefinedChars.at(i).value(keys.at(j)).startsWith("editable:")) {
-                editable = predefinedChars.at(i).value(keys.at(j)).at(j).split(" ").at(1);
-            } else if (predefinedChars.at(i).value(keys.at(j)).startsWith("name:")) {
-                name = predefinedChars.at(i).value(keys.at(j)).at(j).split(" ").at(1);
+            QStringList data = predefinedChars.at(i).value(keys.at(j));
+            QStringList newList;
+            for (int k = 0; k < data.length(); k++) {
+                if (data.at(k).startsWith("editable")) {
+                    editable = data.at(k).split(" ").at(1);
+                    indexEditable = k;
+                } else if (data.at(k).startsWith("name")) {
+                    name = data.at(k).split(" ").at(1);
+                    indexName = k;
+                } else {
+                    newList.append(data.at(k));
+                }
             }
+            QString title;
+            if (editable == "yes") {
+                title = name + " " +  keys.at(j) + " (rw)";
+            } else {
+                title = name + " " +  keys.at(j) + " (ro)";
+            }
+            QMap<QString, QStringList> tmpMap;
+            tmpMap[title] = newList;
+            tmp->append(tmpMap);
         }
-        QString title = name + " " +  keys.at(i) + " (" + editable == "yes" ? "rw" : "ro";
-        qDebug() << title;
+    }
+    predefinedChars = *tmp;
+    delete tmp;
+
+    for (int i = 0; i < predefinedChars.length(); i++) {
+        ui->charsList->addItem(predefinedChars.at(i).keys().at(0));
     }
 }
 
