@@ -13,5 +13,6 @@
         <file>assets/icons/arrow_down.png</file>
         <file>assets/icons/arrow_right.png</file>
         <file>assets/predefined.json</file>
+        <file>assets/icons/save.png</file>
     </qresource>
 </RCC>

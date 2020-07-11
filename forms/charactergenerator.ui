@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>653</width>
-    <height>529</height>
+    <width>851</width>
+    <height>530</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -232,7 +232,7 @@
       <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Pre-made characters</string>
+         <string>User made characters</string>
         </property>
        </widget>
       </item>
@@ -245,7 +245,7 @@
           </property>
           <property name="icon">
            <iconset resource="../res.qrc">
-            <normaloff>:/assets/icons/add.png</normaloff>:/assets/icons/add.png</iconset>
+            <normaloff>:/assets/icons/save.png</normaloff>:/assets/icons/save.png</iconset>
           </property>
          </widget>
         </item>
@@ -292,6 +292,29 @@
      </layout>
     </item>
    </layout>
+  </widget>
+  <widget class="QListWidget" name="preMadeCharsList">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>70</y>
+     <width>191</width>
+     <height>421</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>50</y>
+     <width>191</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Pre-made characters</string>
+   </property>
   </widget>
  </widget>
  <resources>

@@ -8,6 +8,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
+#include <QMessageBox>
+#include <bitset>
+#include <iostream>
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
@@ -25,12 +28,16 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
             row++;
         }
     }
-    loadMatrix(0);
+    loadMatrixView(0);
     updateResult();
     this->ui->comboBox->addItems(QString("5x7;8x8").split(';'));
-    connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrix(int)));
-    parsePredefinedChars();
-    fillInListWidget();
+    connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrixView(int)));
+    parseChars(CharsSource::User);
+    parseChars(CharsSource::Predefined);
+    ui->charsList->addItems(userChars.keys());
+    ui->preMadeCharsList->addItems(predefinedChars.keys());
+    connect(this->ui->charsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(loadChar(QListWidgetItem*)));
+    connect(this->ui->preMadeCharsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(loadChar(QListWidgetItem*)));
 }
 
 void CharacterGenerator::paintEvent(QPaintEvent *event) {
@@ -42,20 +49,51 @@ void CharacterGenerator::paintEvent(QPaintEvent *event) {
     }
 }
 
-CharacterGenerator::~CharacterGenerator() {
-    delete ui;
+void CharacterGenerator::loadChar(QListWidgetItem *item) {
+    if (userChars.keys().contains(item->text())) {
+        qDebug() << "user";
+    } else if (predefinedChars.keys().contains(item->text())) {
+        qDebug() << "predef";
+    } else {
+        QMessageBox::critical(this, "Error", "Error displaying character");
+    }
+    if (item->text().split(" ").at(1).startsWith("5x7")) {
+        ui->comboBox->setCurrentIndex(0);
+    } else {
+        ui->comboBox->setCurrentIndex(1);
+    }
 }
 
 void CharacterGenerator::on_addChar_clicked() {
-    QString name = QInputDialog::getText(this, "New Item Name", "Please enter name for new char");
+    QString name = QInputDialog::getText(this, "New", "Please enter name for new char");
+    if (!name.isEmpty()) {
+        uint16_t row = 0;
+        QStringList x;
+        for(int i = 0; i < 16; i++) {
+            row = 0;
+            for(int j = 15; j > 0; j--) {
+                std::bitset<16> x(values.at(i));
+                std::cout << x;
+                //qDebug() << j;
+                if ((1 << j) && values.at(i)) {
+                    row += (1 << j);
+                    //qDebug() << "OK";
+                }
+            }
+            qDebug() << row;
+            x.append(QString::number(row));
+        }
+        qDebug() << x;
+        ui->charsList->addItem(name);
+    }
 }
 
 void CharacterGenerator::on_editChar_clicked() {
-    QString name = QInputDialog::getText(this, "New Item Name", "Please enter name for new char");
+    QString name = QInputDialog::getText(this, "Edit", "Please enter new name for this char");
 }
 
 void CharacterGenerator::on_deleteChar_clicked() {
-    QMessageBox::question(this, "Remove char?", "Are you sure to delete this char?");
+    QMessageBox::question(this, "Remove", "Are you sure to delete this char?");
 }
 
 void CharacterGenerator::reject() {
@@ -63,9 +101,9 @@ void CharacterGenerator::reject() {
     QDialog::reject();
 }
 
-QJsonDocument CharacterGenerator::readPredefinedChars() {
-    QFile chars(":/assets/predefined.json");
-    if (!chars.open(QIODevice::ReadOnly | QIODevice::Text)) {
+QJsonDocument CharacterGenerator::readChars(QString path, QIODevice::OpenMode mode) {
+    QFile chars(path);
+    if (!chars.open(mode)) {
         return QJsonDocument();
     }
     QByteArray contents;
@@ -74,73 +112,34 @@ QJsonDocument CharacterGenerator::readPredefinedChars() {
     return QJsonDocument::fromJson(contents);
 }
 
-void CharacterGenerator::parsePredefinedChars() {
-    QJsonDocument document = readPredefinedChars();
+void CharacterGenerator::parseChars(CharsSource src) {
+    QJsonDocument document;
+    if (src == CharsSource::User) {
+        document = readChars(QDir::currentPath() + "/user_chars.json",
+                             QIODevice::ReadWrite | QIODevice::Text);
+    } else {
+        document = readChars(":/assets/predefined.json",
+                             QIODevice::ReadOnly | QIODevice::Text);
+    }
     if (!document.isNull()) {
         QJsonObject mainObject = document.object();
-        QStringList mainKeys = mainObject.keys();
+        QStringList letters = mainObject.keys();
         for (int i = 0; i < mainObject.length(); i++) { //iterate over chars
-            QMap<QString, QStringList> character;
-            QJsonObject currentObject = mainObject.value(mainKeys.at(i)).toObject();
-            QStringList currentObjectKeys = currentObject.keys();
-            bool protectedValue = true;
-            for (int j = 0; j < currentObjectKeys.length(); j++) { //iterate over char properties
+            QJsonObject currentLetter = mainObject.value(letters.at(i)).toObject();
+            QStringList currentLetterKeys = currentLetter.keys();
+            for (int j = 0; j < currentLetterKeys.length(); j++) { //iterate over char properties
                 QStringList row;
-                if (currentObject.value(currentObjectKeys.at(j)).isBool()) {
-                    protectedValue = currentObject.value(currentObjectKeys.at(j)).toBool();
-                } else if (currentObject.value(currentObjectKeys.at(j)).isArray()) {
-                    QJsonArray values = currentObject.value(currentObjectKeys.at(j)).toArray();
-                    for (int i = 0; i < values.count(); i++) { //iterate over rows
-                        row.append(QString::number(values.at(i).toDouble()));
-                    }
-                    row.append(protectedValue == true ? "editable: no" : "editable: yes");
-                    row.append("name: " + mainKeys.at(i));
-                    character.insert(currentObjectKeys.at(j), row);
+                QJsonArray values = currentLetter.value(currentLetterKeys.at(j)).toArray();
+                for (int i = 0; i < values.count(); i++) { //iterate over rows
+                    row.append(QString::number(values.at(i).toDouble()));
                 }
-            }
-            predefinedChars.append(character);
-        }
-    }
-}
-
-void CharacterGenerator::fillInListWidget() {
-    QString editable = "";
-    QString name = "";
-    int indexEditable = 0;
-    int indexName = 0;
-    QList<QMap<QString, QStringList>> *tmp = new QList<QMap<QString, QStringList>>();
-    for (int i = 0; i < predefinedChars.length(); i++) { // 'A' 'a'
-        QStringList keys = predefinedChars.at(i).keys(); //keys of one character
-        for (int j = 0; j < keys.length(); j++) {
-            QStringList data = predefinedChars.at(i).value(keys.at(j));
-            QStringList newList;
-            for (int k = 0; k < data.length(); k++) {
-                if (data.at(k).startsWith("editable")) {
-                    editable = data.at(k).split(" ").at(1);
-                    indexEditable = k;
-                } else if (data.at(k).startsWith("name")) {
-                    name = data.at(k).split(" ").at(1);
-                    indexName = k;
+                if (src == CharsSource::User) {
+                    userChars.insert(letters.at(i) + " " + currentLetterKeys.at(j), row);
                 } else {
-                    newList.append(data.at(k));
+                    predefinedChars.insert(letters.at(i) + " " + currentLetterKeys.at(j), row);
                 }
             }
-            QString title;
-            if (editable == "yes") {
-                title = name + " " +  keys.at(j) + " (rw)";
-            } else {
-                title = name + " " +  keys.at(j) + " (ro)";
-            }
-            QMap<QString, QStringList> tmpMap;
-            tmpMap[title] = newList;
-            tmp->append(tmpMap);
         }
-    }
-    predefinedChars = *tmp;
-    delete tmp;
-
-    for (int i = 0; i < predefinedChars.length(); i++) {
-        ui->charsList->addItem(predefinedChars.at(i).keys().at(0));
     }
 }
 
@@ -156,7 +155,7 @@ void CharacterGenerator::updateResult() {
     this->repaint();
 }
 
-void CharacterGenerator::loadMatrix(int matrix) {
+void CharacterGenerator::loadMatrixView(int matrix) {
     if (matrix == 0) { //5x7
         for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(false);
         for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(false);
@@ -262,7 +261,9 @@ void CharacterGenerator::on_invertBtn_clicked() {
         values.replace(i, ~values.at(i));
     }
     updateMatrix();
-    //add clearing extra data when selected 5x7 matrix type
+    if(ui->comboBox->currentText() == "5x7") {
+        //add clearing extra data when selected 5x7 matrix type
+    }
 }
 
 void CharacterGenerator::on_clearBtn_clicked() {
@@ -270,4 +271,8 @@ void CharacterGenerator::on_clearBtn_clicked() {
         values.replace(i, 0);
     }
     updateMatrix();
+}
+
+CharacterGenerator::~CharacterGenerator() {
+    delete ui;
 }

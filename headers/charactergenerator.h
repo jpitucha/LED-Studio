@@ -5,6 +5,8 @@
 #include "headers/clickablelabel.h"
 #include <QPainter>
 #include <QJsonDocument>
+#include <QMap>
+#include <QListWidgetItem>
 
 namespace Ui {
 class CharacterGenerator;
@@ -21,7 +23,8 @@ public:
 
 public slots:
     void reject();
-    void loadMatrix(int);
+    void loadMatrixView(int);
+    void loadChar(QListWidgetItem*);
     void whenDotClicked(int);
 
 private slots:
@@ -45,12 +48,13 @@ private:
     unsigned char b6 = 255;
     unsigned char b7 = 255;
     unsigned char b8 = 255;
+    enum CharsSource {User, Predefined};
     QList<uint16_t> values;
     QList<ClickableLabel *> dots;
-    QList<QMap<QString, QStringList>> predefinedChars;
-    QJsonDocument readPredefinedChars();
-    void parsePredefinedChars();
-    void fillInListWidget();
+    QMap<QString, QStringList> userChars;
+    QMap<QString, QStringList> predefinedChars;
+    QJsonDocument readChars(QString path, QIODevice::OpenMode mode);
+    void parseChars(CharsSource src);
     void updateResult();
     void updateMatrix();
 };
