@@ -50,6 +50,7 @@ private:
     unsigned char b8 = 255;
     enum CharsSource {User, Predefined};
     QList<uint16_t> values;
+    QList<QBitArray> values2;
     QList<ClickableLabel *> dots;
     QMap<QString, QStringList> userChars;
     QMap<QString, QStringList> predefinedChars;
@@ -57,6 +58,8 @@ private:
     void parseChars(CharsSource src);
     void updateResult();
     void updateMatrix();
+    void updateUserCharsList();
+    void saveUserCharsToFile();
 };
 
 #endif // CHARACTERGENERATOR_H

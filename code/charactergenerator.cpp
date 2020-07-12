@@ -8,13 +8,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
-#include <QMessageBox>
 #include <bitset>
-#include <iostream>
+#include <QBitArray>
+#include <math.h>
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
-    for (int i = 0; i < 16; i++) { values.append(0); }
+    for (int i = 0; i < 16; i++) { values.append(0); values2.append(QBitArray(16)); }
     int row = 1;
     int col = 1;
     for(int i = 0; i < 256; i++) {
@@ -54,8 +54,6 @@ void CharacterGenerator::loadChar(QListWidgetItem *item) {
         qDebug() << "user";
     } else if (predefinedChars.keys().contains(item->text())) {
         qDebug() << "predef";
-    } else {
-        QMessageBox::critical(this, "Error", "Error displaying character");
     }
     if (item->text().split(" ").at(1).startsWith("5x7")) {
         ui->comboBox->setCurrentIndex(0);
@@ -67,33 +65,56 @@ void CharacterGenerator::loadChar(QListWidgetItem *item) {
 void CharacterGenerator::on_addChar_clicked() {
     QString name = QInputDialog::getText(this, "New", "Please enter name for new char");
     if (!name.isEmpty()) {
-        uint16_t row = 0;
+        if (userChars.keys().contains(name)) {
+            if (QMessageBox::question(this, "Name exists", "That name already exists. Override?") == QMessageBox::No) {
+                return;
+            }
+        }
+        QBitArray ba(16);
         QStringList x;
+        double d = 0;
         for(int i = 0; i < 16; i++) {
-            row = 0;
-            for(int j = 15; j > 0; j--) {
-                std::bitset<16> x(values.at(i));
-                std::cout << x;
-                //qDebug() << j;
-                if ((1 << j) && values.at(i)) {
-                    row += (1 << j);
-                    //qDebug() << "OK";
+            ba.fill(false);
+            d = 0.0;
+            for(int j = 0; j < 16; j++) {
+                if (values2.at(i).testBit(j)) {
+                    d += pow(2, j);
                 }
             }
-            qDebug() << row;
-            x.append(QString::number(row));
+            x.append(QString::number(int(d)));
         }
-        qDebug() << x;
-        ui->charsList->addItem(name);
+        userChars.insert(name + " " + ui->comboBox->currentText(), x);
+        ui->charsList->addItem(name + " " + ui->comboBox->currentText());
+        saveUserCharsToFile();
     }
 }
 
 void CharacterGenerator::on_editChar_clicked() {
     QString name = QInputDialog::getText(this, "Edit", "Please enter new name for this char");
+    if (!name.isEmpty() && ui->charsList->selectedItems().length() > 0) {
+        if (userChars.keys().contains(name)) {
+            QMessageBox::critical(this, "Char exists!", "Char with that name already exists. Choose another name");
+        } else {
+            QString currentKey = ui->charsList->selectedItems().at(0)->text();
+            QStringList c = userChars.value(currentKey);
+            userChars.remove(currentKey);
+            userChars.insert(name + " " + ui->comboBox->currentText(), c);
+            ui->charsList->clear();
+            ui->charsList->addItems(userChars.keys());
+        }
+    }
 }
 
 void CharacterGenerator::on_deleteChar_clicked() {
     QMessageBox::question(this, "Remove", "Are you sure to delete this char?");
+    QString name = ui->charsList->selectedItems().at(0)->text();
+    userChars.remove(name);
+    ui->charsList->clear();
+    ui->charsList->addItems(userChars.keys());
+}
+
+void CharacterGenerator::saveUserCharsToFile() {
+
 }
 
 void CharacterGenerator::reject() {
@@ -203,6 +224,10 @@ void CharacterGenerator::whenDotClicked(int id) {
     int row = id / 16;
     int col = id % 16;
     values.replace(row, values.at(row) ^ (1 << (15 - col)));
+
+    QBitArray tmp = values2.at(row);
+    tmp.toggleBit(col);
+    values2.replace(row, tmp);
     updateMatrix();
 }
 
