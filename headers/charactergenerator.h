@@ -54,10 +54,10 @@ private:
     QList<ClickableLabel *> dots;
     QMap<QString, QStringList> userChars;
     QMap<QString, QStringList> predefinedChars;
-    QJsonDocument readChars(QString path, QIODevice::OpenMode mode);
+    QJsonDocument readCharsFromFile(QString path, QIODevice::OpenMode mode);
     void parseChars(CharsSource src);
     void updateResult();
-    void updateMatrix();
+    void updateMatrixView();
     void updateUserCharsList();
     void saveUserCharsToFile();
 };

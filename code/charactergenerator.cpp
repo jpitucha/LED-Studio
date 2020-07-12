@@ -62,6 +62,121 @@ void CharacterGenerator::loadChar(QListWidgetItem *item) {
     }
 }
 
+void CharacterGenerator::saveUserCharsToFile() {
+
+}
+
+QJsonDocument CharacterGenerator::readCharsFromFile(QString path, QIODevice::OpenMode mode) {
+    QFile chars(path);
+    if (!chars.open(mode)) {
+        return QJsonDocument();
+    }
+    QByteArray contents;
+    contents = chars.readAll();
+    chars.close();
+    return QJsonDocument::fromJson(contents);
+}
+
+void CharacterGenerator::parseChars(CharsSource src) {
+    QJsonDocument document;
+    if (src == CharsSource::User) {
+        document = readCharsFromFile(QDir::currentPath() + "/user_chars.json",
+                             QIODevice::ReadWrite | QIODevice::Text);
+    } else {
+        document = readCharsFromFile(":/assets/predefined.json",
+                             QIODevice::ReadOnly | QIODevice::Text);
+    }
+    if (!document.isNull()) {
+        QJsonObject mainObject = document.object();
+        QStringList letters = mainObject.keys();
+        for (int i = 0; i < mainObject.length(); i++) { //iterate over chars
+            QJsonObject currentLetter = mainObject.value(letters.at(i)).toObject();
+            QStringList currentLetterKeys = currentLetter.keys();
+            for (int j = 0; j < currentLetterKeys.length(); j++) { //iterate over char properties
+                QStringList row;
+                QJsonArray values = currentLetter.value(currentLetterKeys.at(j)).toArray();
+                for (int i = 0; i < values.count(); i++) { //iterate over rows
+                    row.append(QString::number(values.at(i).toDouble()));
+                }
+                if (src == CharsSource::User) {
+                    userChars.insert(letters.at(i) + " " + currentLetterKeys.at(j), row);
+                } else {
+                    predefinedChars.insert(letters.at(i) + " " + currentLetterKeys.at(j), row);
+                }
+            }
+        }
+    }
+}
+
+void CharacterGenerator::loadMatrixView(int matrix) {
+    if (matrix == 0) { //5x7
+        for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(false);
+        for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(false);
+        for (int i = 42; i <= 47; i++) dots.at(i)->setEnabled(false);
+        for (int i = 58; i <= 63; i++) dots.at(i)->setEnabled(false);
+        for (int i = 74; i <= 79; i++) dots.at(i)->setEnabled(false);
+        for (int i = 90; i <= 95; i++) dots.at(i)->setEnabled(false);
+        for (int i = 106; i <= 111; i++) dots.at(i)->setEnabled(false);
+        for (int i = 122; i <= 127; i++) dots.at(i)->setEnabled(false);
+        for (int i = 138; i <= 143; i++) dots.at(i)->setEnabled(false);
+        for (int i = 154; i <= 159; i++) dots.at(i)->setEnabled(false);
+        for (int i = 170; i <= 175; i++) dots.at(i)->setEnabled(false);
+        for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(false);
+        for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(false);
+        for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(false);
+        for (int i = 0; i < values.size(); i++) {
+            uint16_t tmp = values.at(i);
+            tmp &= 0b1111111111000000;
+            values.replace(i, tmp);
+        }
+        values.replace(14, 0);
+        values.replace(15, 0);
+        updateMatrixView();
+        update();
+    } else { //8x8
+        for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(true);
+        for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(true);
+        for (int i = 42; i <= 47; i++) dots.at(i)->setEnabled(true);
+        for (int i = 58; i <= 63; i++) dots.at(i)->setEnabled(true);
+        for (int i = 74; i <= 79; i++) dots.at(i)->setEnabled(true);
+        for (int i = 90; i <= 95; i++) dots.at(i)->setEnabled(true);
+        for (int i = 106; i <= 111; i++) dots.at(i)->setEnabled(true);
+        for (int i = 122; i <= 127; i++) dots.at(i)->setEnabled(true);
+        for (int i = 138; i <= 143; i++) dots.at(i)->setEnabled(true);
+        for (int i = 154; i <= 159; i++) dots.at(i)->setEnabled(true);
+        for (int i = 170; i <= 175; i++) dots.at(i)->setEnabled(true);
+        for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(true);
+        for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(true);
+        for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(true);
+        update();
+    }
+}
+
+void CharacterGenerator::updateMatrixView() {
+    int index = 0;
+    for (int i = 0; i < 16; i++) {
+        for (int y = 15; y >= 0; y--) {
+            if ((values.at(i) >> y) & 1) {
+                dots.at(index)->setOn();
+            } else {
+                dots.at(index)->setOff();
+            }
+            index++;
+        }
+    }
+}
+
+void CharacterGenerator::whenDotClicked(int id) {
+    int row = id / 16;
+    int col = id % 16;
+    values.replace(row, values.at(row) ^ (1 << (15 - col)));
+
+    QBitArray tmp = values2.at(row);
+    tmp.toggleBit(col);
+    values2.replace(row, tmp);
+    updateMatrixView();
+}
+
 void CharacterGenerator::on_addChar_clicked() {
     QString name = QInputDialog::getText(this, "New", "Please enter name for new char");
     if (!name.isEmpty()) {
@@ -113,55 +228,57 @@ void CharacterGenerator::on_deleteChar_clicked() {
     ui->charsList->addItems(userChars.keys());
 }
 
-void CharacterGenerator::saveUserCharsToFile() {
-
-}
-
-void CharacterGenerator::reject() {
-    this->deleteLater();
-    QDialog::reject();
-}
-
-QJsonDocument CharacterGenerator::readChars(QString path, QIODevice::OpenMode mode) {
-    QFile chars(path);
-    if (!chars.open(mode)) {
-        return QJsonDocument();
+void CharacterGenerator::on_moveLeftBtn_clicked() {
+    for (int i = 0; i < values.size(); i++) {
+        values.replace(i, values.at(i) << 1);
     }
-    QByteArray contents;
-    contents = chars.readAll();
-    chars.close();
-    return QJsonDocument::fromJson(contents);
+    updateMatrixView();
 }
 
-void CharacterGenerator::parseChars(CharsSource src) {
-    QJsonDocument document;
-    if (src == CharsSource::User) {
-        document = readChars(QDir::currentPath() + "/user_chars.json",
-                             QIODevice::ReadWrite | QIODevice::Text);
-    } else {
-        document = readChars(":/assets/predefined.json",
-                             QIODevice::ReadOnly | QIODevice::Text);
-    }
-    if (!document.isNull()) {
-        QJsonObject mainObject = document.object();
-        QStringList letters = mainObject.keys();
-        for (int i = 0; i < mainObject.length(); i++) { //iterate over chars
-            QJsonObject currentLetter = mainObject.value(letters.at(i)).toObject();
-            QStringList currentLetterKeys = currentLetter.keys();
-            for (int j = 0; j < currentLetterKeys.length(); j++) { //iterate over char properties
-                QStringList row;
-                QJsonArray values = currentLetter.value(currentLetterKeys.at(j)).toArray();
-                for (int i = 0; i < values.count(); i++) { //iterate over rows
-                    row.append(QString::number(values.at(i).toDouble()));
-                }
-                if (src == CharsSource::User) {
-                    userChars.insert(letters.at(i) + " " + currentLetterKeys.at(j), row);
-                } else {
-                    predefinedChars.insert(letters.at(i) + " " + currentLetterKeys.at(j), row);
-                }
-            }
+void CharacterGenerator::on_moveRightBtn_clicked() {
+    for (int i = 0; i < values.size(); i++) {
+        uint16_t tmp = values.at(i);
+        tmp = tmp >> 1;
+        if (ui->comboBox->currentText() == "5x7") {
+            tmp &= 0b1111111111000000;
         }
+        values.replace(i, tmp);
     }
+    updateMatrixView();
+}
+
+void CharacterGenerator::on_moveUpBtn_clicked() {
+    values.removeFirst();
+    values.append(0);
+    updateMatrixView();
+
+}
+
+void CharacterGenerator::on_moveDownBtn_clicked() {
+    values.prepend(0);
+    values.removeLast();
+    if (ui->comboBox->currentText() == "5x7") {
+        values.replace(14, 0);
+        values.replace(15, 0);
+    }
+    updateMatrixView();
+}
+
+void CharacterGenerator::on_invertBtn_clicked() {
+    for (int i = 0; i < values.size(); i++) {
+        values.replace(i, ~values.at(i));
+    }
+    updateMatrixView();
+    if(ui->comboBox->currentText() == "5x7") {
+        //add clearing extra data when selected 5x7 matrix type
+    }
+}
+
+void CharacterGenerator::on_clearBtn_clicked() {
+    for (int i = 0; i < values.size(); i++) {
+        values.replace(i, 0);
+    }
+    updateMatrixView();
 }
 
 void CharacterGenerator::updateResult() {
@@ -176,126 +293,9 @@ void CharacterGenerator::updateResult() {
     this->repaint();
 }
 
-void CharacterGenerator::loadMatrixView(int matrix) {
-    if (matrix == 0) { //5x7
-        for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(false);
-        for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(false);
-        for (int i = 42; i <= 47; i++) dots.at(i)->setEnabled(false);
-        for (int i = 58; i <= 63; i++) dots.at(i)->setEnabled(false);
-        for (int i = 74; i <= 79; i++) dots.at(i)->setEnabled(false);
-        for (int i = 90; i <= 95; i++) dots.at(i)->setEnabled(false);
-        for (int i = 106; i <= 111; i++) dots.at(i)->setEnabled(false);
-        for (int i = 122; i <= 127; i++) dots.at(i)->setEnabled(false);
-        for (int i = 138; i <= 143; i++) dots.at(i)->setEnabled(false);
-        for (int i = 154; i <= 159; i++) dots.at(i)->setEnabled(false);
-        for (int i = 170; i <= 175; i++) dots.at(i)->setEnabled(false);
-        for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(false);
-        for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(false);
-        for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(false);
-        for (int i = 0; i < values.size(); i++) {
-            uint16_t tmp = values.at(i);
-            tmp &= 0b1111111111000000;
-            values.replace(i, tmp);
-            values.replace(14, 0);
-            values.replace(15, 0);
-        }
-        updateMatrix();
-        update();
-    } else { //8x8
-        for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(true);
-        for (int i = 26; i <= 31; i++) dots.at(i)->setEnabled(true);
-        for (int i = 42; i <= 47; i++) dots.at(i)->setEnabled(true);
-        for (int i = 58; i <= 63; i++) dots.at(i)->setEnabled(true);
-        for (int i = 74; i <= 79; i++) dots.at(i)->setEnabled(true);
-        for (int i = 90; i <= 95; i++) dots.at(i)->setEnabled(true);
-        for (int i = 106; i <= 111; i++) dots.at(i)->setEnabled(true);
-        for (int i = 122; i <= 127; i++) dots.at(i)->setEnabled(true);
-        for (int i = 138; i <= 143; i++) dots.at(i)->setEnabled(true);
-        for (int i = 154; i <= 159; i++) dots.at(i)->setEnabled(true);
-        for (int i = 170; i <= 175; i++) dots.at(i)->setEnabled(true);
-        for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(true);
-        for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(true);
-        for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(true);
-        update();
-    }
-}
-
-void CharacterGenerator::whenDotClicked(int id) {
-    int row = id / 16;
-    int col = id % 16;
-    values.replace(row, values.at(row) ^ (1 << (15 - col)));
-
-    QBitArray tmp = values2.at(row);
-    tmp.toggleBit(col);
-    values2.replace(row, tmp);
-    updateMatrix();
-}
-
-void CharacterGenerator::updateMatrix() {
-    int index = 0;
-    for (int i = 0; i < 16; i++) {
-        for (int y = 15; y >= 0; y--) {
-            if ((values.at(i) >> y) & 1) {
-                dots.at(index)->setOn();
-            } else {
-                dots.at(index)->setOff();
-            }
-            index++;
-        }
-    }
-}
-
-void CharacterGenerator::on_moveLeftBtn_clicked() {
-    for (int i = 0; i < values.size(); i++) {
-        values.replace(i, values.at(i) << 1);
-    }
-    updateMatrix();
-}
-
-void CharacterGenerator::on_moveRightBtn_clicked() {
-    for (int i = 0; i < values.size(); i++) {
-        uint16_t tmp = values.at(i);
-        tmp = tmp >> 1;
-        if (ui->comboBox->currentText() == "5x7") {
-            tmp &= 0b1111111111000000;
-        }
-        values.replace(i, tmp);
-    }
-    updateMatrix();
-}
-
-void CharacterGenerator::on_moveUpBtn_clicked() {
-    values.removeFirst();
-    values.append(0);
-    updateMatrix();
-
-}
-
-void CharacterGenerator::on_moveDownBtn_clicked() {
-    values.prepend(0);
-    values.removeLast();
-    if (ui->comboBox->currentText() == "5x7") {
-        values.replace(14, 0);
-        values.replace(15, 0);
-    }
-    updateMatrix();
-}
-
-void CharacterGenerator::on_invertBtn_clicked() {
-    for (int i = 0; i < values.size(); i++) {
-        values.replace(i, ~values.at(i));
-    }
-    updateMatrix();
-    if(ui->comboBox->currentText() == "5x7") {
-        //add clearing extra data when selected 5x7 matrix type
-    }
-}
-
-void CharacterGenerator::on_clearBtn_clicked() {
-    for (int i = 0; i < values.size(); i++) {
-        values.replace(i, 0);
-    }
-    updateMatrix();
+void CharacterGenerator::reject() {
+    this->deleteLater();
+    QDialog::reject();
 }
 
 CharacterGenerator::~CharacterGenerator() {
