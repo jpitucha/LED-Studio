@@ -47,12 +47,12 @@ private:
     QMap<QString, QStringList> userChars;
     QMap<QString, QStringList> predefinedChars;
     QJsonDocument readCharsFromFile(QString path, QIODevice::OpenMode mode);
+    void saveUserCharsToFile();
     void decodeChars(CharsSource src);
-    void encodeChars();
+    QJsonDocument encodeChars();
     void updateResult();
     void updateMatrixView();
-    void updateUserCharsList();
-    void saveUserCharsToFile();
+    //void updateUserCharsList();
     QString bitArrayToString(QBitArray ba);
 };
 

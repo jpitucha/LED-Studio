@@ -88,9 +88,12 @@ QJsonDocument CharacterGenerator::readCharsFromFile(QString path, QIODevice::Ope
 
 void CharacterGenerator::saveUserCharsToFile() {
     QFile chars(QDir::currentPath() + "/user_chars.json");
-    if (!chars.open(QIODevice::ReadWrite | QIODevice::Text)) {
+    if (chars.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        qDebug() << "file opened";
         chars.resize(0);
-
+        QJsonDocument doc = encodeChars();
+        chars.write(doc.toJson());
+        chars.close();
     }
 }
 
@@ -125,11 +128,36 @@ void CharacterGenerator::decodeChars(CharsSource src) {
     }
 }
 
-void CharacterGenerator::encodeChars() {
+QJsonDocument CharacterGenerator::encodeChars() {
     QJsonObject mainObject;
     QStringList keys = userChars.keys();
-    int duplicates = 0;
-    for (int i = 0; i < keys.length(); i++) {
+
+    QStringList uniqueKeys;
+    if (keys.length() == 1) {
+
+    } else if (keys.length() > 1) {
+        for (int i = 1; i < keys.length(); i++) {
+            if (!uniqueKeys.contains(keys.at(i))) {
+                uniqueKeys.append(keys.at(i));
+            }
+        }
+    }
+
+    if (uniqueKeys.length() > 1) {
+        return QJsonDocument();
+    } else {
+        QJsonObject pattern;
+        QJsonObject primary;
+        QJsonArray a;
+        for (int i = 0; i < 16; i++) {
+            a.append(userChars.value(keys.at(0)).at(i));
+        }
+
+        pattern.insert(keys.at(0).split(" ").at(1), a);
+        primary.insert(keys.at(0).split(" ").at(0), pattern);
+        QJsonDocument doc;
+        doc.setObject(primary);
+        return doc;
     }
 }
 
@@ -188,6 +216,8 @@ void CharacterGenerator::updateMatrixView() {
             index++;
         }
     }
+
+    //
 }
 
 void CharacterGenerator::whenDotClicked(int id) {
@@ -199,6 +229,7 @@ void CharacterGenerator::whenDotClicked(int id) {
     QBitArray tmp = values2.at(row);
     tmp.toggleBit(col);
     values2.replace(row, tmp);
+
     updateMatrixView();
 }
 
@@ -210,11 +241,9 @@ void CharacterGenerator::on_addChar_clicked() {
                 return;
             }
         }
-        QBitArray ba(16);
         QStringList x;
         double d = 0;
         for(int i = 0; i < 16; i++) {
-            ba.fill(false);
             d = 0.0;
             for(int j = 0; j < 16; j++) {
                 if (values2.at(i).testBit(j)) {
@@ -226,6 +255,7 @@ void CharacterGenerator::on_addChar_clicked() {
         userChars.insert(name + " " + ui->comboBox->currentText(), x);
         ui->charsList->addItem(name + " " + ui->comboBox->currentText());
         saveUserCharsToFile();
+        qDebug() << "saving user chars to file";
     }
 }
 
@@ -241,16 +271,20 @@ void CharacterGenerator::on_editChar_clicked() {
             userChars.insert(name + " " + ui->comboBox->currentText(), c);
             ui->charsList->clear();
             ui->charsList->addItems(userChars.keys());
+            saveUserCharsToFile();
         }
     }
 }
 
 void CharacterGenerator::on_deleteChar_clicked() {
-    QMessageBox::question(this, "Remove", "Are you sure to delete this char?");
-    QString name = ui->charsList->selectedItems().at(0)->text();
-    userChars.remove(name);
-    ui->charsList->clear();
-    ui->charsList->addItems(userChars.keys());
+    if (ui->charsList->selectedItems().length() > 0) {
+        QMessageBox::question(this, "Remove", "Are you sure to delete this char?");
+        QString name = ui->charsList->selectedItems().at(0)->text();
+        userChars.remove(name);
+        ui->charsList->clear();
+        ui->charsList->addItems(userChars.keys());
+        saveUserCharsToFile();
+    }
 }
 
 void CharacterGenerator::on_moveLeftBtn_clicked() {
