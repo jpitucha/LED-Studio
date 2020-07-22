@@ -15,6 +15,7 @@
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
     for (int i = 0; i < 16; i++) { values.append(0); values2.append(QBitArray(16)); }
+
     int row = 1;
     int col = 1;
     for(int i = 0; i < 256; i++) {
@@ -32,8 +33,9 @@ CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(ne
     updateResult();
     this->ui->comboBox->addItems(QString("5x7;8x8").split(';'));
     connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadMatrixView(int)));
-    parseChars(CharsSource::User);
-    parseChars(CharsSource::Predefined);
+
+    decodeChars(CharsSource::User);
+    decodeChars(CharsSource::Predefined);
     ui->charsList->addItems(userChars.keys());
     ui->preMadeCharsList->addItems(predefinedChars.keys());
     connect(this->ui->charsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(loadChar(QListWidgetItem*)));
@@ -62,8 +64,15 @@ void CharacterGenerator::loadChar(QListWidgetItem *item) {
     }
 }
 
-void CharacterGenerator::saveUserCharsToFile() {
-
+QString CharacterGenerator::bitArrayToString(QBitArray ba) {
+    int tmp = 0;
+    for (int i = 0; i < ba.size(); i++) {
+        tmp = 0;
+        if (ba.testBit(i)) {
+            tmp += pow(2, i);
+        }
+    }
+    return QString::number(tmp);
 }
 
 QJsonDocument CharacterGenerator::readCharsFromFile(QString path, QIODevice::OpenMode mode) {
@@ -77,7 +86,15 @@ QJsonDocument CharacterGenerator::readCharsFromFile(QString path, QIODevice::Ope
     return QJsonDocument::fromJson(contents);
 }
 
-void CharacterGenerator::parseChars(CharsSource src) {
+void CharacterGenerator::saveUserCharsToFile() {
+    QFile chars(QDir::currentPath() + "/user_chars.json");
+    if (!chars.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        chars.resize(0);
+
+    }
+}
+
+void CharacterGenerator::decodeChars(CharsSource src) {
     QJsonDocument document;
     if (src == CharsSource::User) {
         document = readCharsFromFile(QDir::currentPath() + "/user_chars.json",
@@ -108,6 +125,14 @@ void CharacterGenerator::parseChars(CharsSource src) {
     }
 }
 
+void CharacterGenerator::encodeChars() {
+    QJsonObject mainObject;
+    QStringList keys = userChars.keys();
+    int duplicates = 0;
+    for (int i = 0; i < keys.length(); i++) {
+    }
+}
+
 void CharacterGenerator::loadMatrixView(int matrix) {
     if (matrix == 0) { //5x7
         for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(false);
@@ -131,7 +156,6 @@ void CharacterGenerator::loadMatrixView(int matrix) {
         }
         values.replace(14, 0);
         values.replace(15, 0);
-        updateMatrixView();
         update();
     } else { //8x8
         for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(true);
@@ -169,6 +193,7 @@ void CharacterGenerator::updateMatrixView() {
 void CharacterGenerator::whenDotClicked(int id) {
     int row = id / 16;
     int col = id % 16;
+
     values.replace(row, values.at(row) ^ (1 << (15 - col)));
 
     QBitArray tmp = values2.at(row);
@@ -251,7 +276,6 @@ void CharacterGenerator::on_moveUpBtn_clicked() {
     values.removeFirst();
     values.append(0);
     updateMatrixView();
-
 }
 
 void CharacterGenerator::on_moveDownBtn_clicked() {
@@ -282,14 +306,7 @@ void CharacterGenerator::on_clearBtn_clicked() {
 }
 
 void CharacterGenerator::updateResult() {
-    this->ui->result->setText("result = { " + QString::number(b1) + ", "
-                                            + QString::number(b2) + ", "
-                                            + QString::number(b3) + ", "
-                                            + QString::number(b4) + ", "
-                                            + QString::number(b5) + ", "
-                                            + QString::number(b6) + ", "
-                                            + QString::number(b7) + ", "
-                                            + QString::number(b8) + " }");
+    this->ui->result->setText("result");
     this->repaint();
 }
 

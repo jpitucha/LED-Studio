@@ -40,14 +40,6 @@ private slots:
 
 private:
     Ui::CharacterGenerator *ui;
-    unsigned char b1 = 255;
-    unsigned char b2 = 255;
-    unsigned char b3 = 255;
-    unsigned char b4 = 255;
-    unsigned char b5 = 255;
-    unsigned char b6 = 255;
-    unsigned char b7 = 255;
-    unsigned char b8 = 255;
     enum CharsSource {User, Predefined};
     QList<uint16_t> values;
     QList<QBitArray> values2;
@@ -55,11 +47,13 @@ private:
     QMap<QString, QStringList> userChars;
     QMap<QString, QStringList> predefinedChars;
     QJsonDocument readCharsFromFile(QString path, QIODevice::OpenMode mode);
-    void parseChars(CharsSource src);
+    void decodeChars(CharsSource src);
+    void encodeChars();
     void updateResult();
     void updateMatrixView();
     void updateUserCharsList();
     void saveUserCharsToFile();
+    QString bitArrayToString(QBitArray ba);
 };
 
 #endif // CHARACTERGENERATOR_H
