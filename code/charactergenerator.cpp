@@ -90,9 +90,11 @@ void CharacterGenerator::saveUserCharsToFile() {
     QFile chars(QDir::currentPath() + "/user_chars.json");
     if (chars.open(QIODevice::ReadWrite | QIODevice::Text)) {
         qDebug() << "file opened";
-        chars.resize(0);
         QJsonDocument doc = encodeChars();
-        chars.write(doc.toJson());
+        if (!doc.isEmpty()) {
+            chars.resize(0);
+            chars.write(doc.toJson());
+        }
         chars.close();
     }
 }
@@ -130,11 +132,11 @@ void CharacterGenerator::decodeChars(CharsSource src) {
 
 QJsonDocument CharacterGenerator::encodeChars() {
     QJsonObject mainObject;
+    //todo - override keys by userchars.keys
     QStringList keys = userChars.keys();
-
     QStringList uniqueKeys;
     if (keys.length() == 1) {
-
+        uniqueKeys.append(keys.at(0));
     } else if (keys.length() > 1) {
         for (int i = 1; i < keys.length(); i++) {
             if (!uniqueKeys.contains(keys.at(i))) {
@@ -143,21 +145,31 @@ QJsonDocument CharacterGenerator::encodeChars() {
         }
     }
 
-    if (uniqueKeys.length() > 1) {
-        return QJsonDocument();
-    } else {
-        QJsonObject pattern;
+    if (uniqueKeys.length() > 0) {
         QJsonObject primary;
-        QJsonArray a;
-        for (int i = 0; i < 16; i++) {
-            a.append(userChars.value(keys.at(0)).at(i));
+        for (int i = 0; i < uniqueKeys.size(); i++) {
+            QJsonObject pattern;
+            QJsonArray array;
+            for (int j = 0; j < 16; j++) {
+                array.append(userChars.value(uniqueKeys.at(i)).at(j));
+            }
+            pattern.insert(uniqueKeys.at(i).split(" ").at(1), array);
+            if (userChars.size() > uniqueKeys.length()) { //if there are duplicates
+                for (int k = 0; k < userChars.size(); k++) {
+                    if (!uniqueKeys.contains(userChars.keys().at(k))) {
+                        QJsonArray duplicateArray;
+                        for (int l = 0; l < 16; l++) {
+                            duplicateArray.append(userChars.value(userChars.keys().at(k)).at(l));
+                        }
+                        pattern.insert(userChars.keys().at(k).split(" ").at(1), duplicateArray);
+                    }
+                }
+            }
+            primary.insert(uniqueKeys.at(i).split(" ").at(0), pattern);
         }
-
-        pattern.insert(keys.at(0).split(" ").at(1), a);
-        primary.insert(keys.at(0).split(" ").at(0), pattern);
-        QJsonDocument doc;
-        doc.setObject(primary);
-        return doc;
+        return QJsonDocument(primary);
+    } else {
+        return QJsonDocument();
     }
 }
 
@@ -217,15 +229,17 @@ void CharacterGenerator::updateMatrixView() {
         }
     }
 
-    //
+    //to do - use values2 variable
 }
 
 void CharacterGenerator::whenDotClicked(int id) {
     int row = id / 16;
     int col = id % 16;
 
+    //old
     values.replace(row, values.at(row) ^ (1 << (15 - col)));
 
+    //new
     QBitArray tmp = values2.at(row);
     tmp.toggleBit(col);
     values2.replace(row, tmp);
@@ -236,11 +250,12 @@ void CharacterGenerator::whenDotClicked(int id) {
 void CharacterGenerator::on_addChar_clicked() {
     QString name = QInputDialog::getText(this, "New", "Please enter name for new char");
     if (!name.isEmpty()) {
-        if (userChars.keys().contains(name)) {
+        if (userChars.keys().contains(name)) { //this dont catches anything
             if (QMessageBox::question(this, "Name exists", "That name already exists. Override?") == QMessageBox::No) {
                 return;
             }
         }
+        // to do - use bit array to string method
         QStringList x;
         double d = 0;
         for(int i = 0; i < 16; i++) {
