@@ -9,12 +9,12 @@
 #include <QJsonArray>
 #include <QDebug>
 #include <bitset>
-#include <QBitArray>
 #include <math.h>
 
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
-    for (int i = 0; i < 16; i++) { values.append(0); values2.append(QBitArray(16)); }
+    mask5x7.resize(16);
+    for (int i = 0; i < 10; i++) { mask5x7.setBit(i, true); values2.append(QBitArray(16)); }
 
     int row = 1;
     int col = 1;
@@ -69,7 +69,7 @@ QString CharacterGenerator::bitArrayToString(QBitArray ba) {
     for (int i = 0; i < ba.size(); i++) {
         tmp = 0;
         if (ba.testBit(i)) {
-            tmp += pow(2, i);
+            tmp += int(pow(2, i));
         }
     }
     return QString::number(tmp);
@@ -132,15 +132,13 @@ void CharacterGenerator::decodeChars(CharsSource src) {
 
 QJsonDocument CharacterGenerator::encodeChars() {
     QJsonObject mainObject;
-    //todo - override keys by userchars.keys
-    QStringList keys = userChars.keys();
     QStringList uniqueKeys;
-    if (keys.length() == 1) {
-        uniqueKeys.append(keys.at(0));
-    } else if (keys.length() > 1) {
-        for (int i = 1; i < keys.length(); i++) {
-            if (!uniqueKeys.contains(keys.at(i))) {
-                uniqueKeys.append(keys.at(i));
+    if (userChars.size() == 1) {
+        uniqueKeys.append(userChars.keys().at(0));
+    } else if (userChars.size() > 1) {
+        for (int i = 1; i < userChars.size(); i++) {
+            if (!uniqueKeys.contains(userChars.keys().at(i))) {
+                uniqueKeys.append(userChars.keys().at(i));
             }
         }
     }
@@ -219,31 +217,19 @@ void CharacterGenerator::loadMatrixView(int matrix) {
 void CharacterGenerator::updateMatrixView() {
     int index = 0;
     for (int i = 0; i < 16; i++) {
-        for (int y = 15; y >= 0; y--) {
-            if ((values.at(i) >> y) & 1) {
-                dots.at(index)->setOn();
-            } else {
-                dots.at(index)->setOff();
-            }
+        for (int j = 0; j < 16; j++) {
+            values2.at(i).testBit(j) ? dots.at(index)->setOn() : dots.at(index)->setOff();
             index++;
         }
     }
-
-    //to do - use values2 variable
 }
 
 void CharacterGenerator::whenDotClicked(int id) {
     int row = id / 16;
     int col = id % 16;
-
-    //old
-    values.replace(row, values.at(row) ^ (1 << (15 - col)));
-
-    //new
     QBitArray tmp = values2.at(row);
     tmp.toggleBit(col);
     values2.replace(row, tmp);
-
     updateMatrixView();
 }
 
@@ -303,36 +289,42 @@ void CharacterGenerator::on_deleteChar_clicked() {
 }
 
 void CharacterGenerator::on_moveLeftBtn_clicked() {
-    for (int i = 0; i < values.size(); i++) {
-        values.replace(i, values.at(i) << 1);
+    for (int i = 0; i < values2.size(); i++) {
+        QBitArray line = values2.at(i);
+        for (int j = 0; j < 15; j++) {
+            line.setBit(j, line.testBit(j + 1));
+        }
+        line.setBit(15, false);
+        values2.replace(i, line);
     }
     updateMatrixView();
 }
 
 void CharacterGenerator::on_moveRightBtn_clicked() {
-    for (int i = 0; i < values.size(); i++) {
-        uint16_t tmp = values.at(i);
-        tmp = tmp >> 1;
-        if (ui->comboBox->currentText() == "5x7") {
-            tmp &= 0b1111111111000000;
+    for (int i = 0; i < values2.size(); i++) {
+        QBitArray line = values2.at(i);
+        for (int j = 15; j > 0; j--) {
+            line.setBit(j, line.testBit(j - 1));
         }
-        values.replace(i, tmp);
+        line.setBit(0, false);
+        line &= mask5x7;
+        values2.replace(i, line);
     }
     updateMatrixView();
 }
 
 void CharacterGenerator::on_moveUpBtn_clicked() {
-    values.removeFirst();
-    values.append(0);
+    values2.removeFirst();
+    values2.append(QBitArray(16));
     updateMatrixView();
 }
 
 void CharacterGenerator::on_moveDownBtn_clicked() {
-    values.prepend(0);
-    values.removeLast();
+    values2.prepend(QBitArray(16));
+    values2.removeLast();
     if (ui->comboBox->currentText() == "5x7") {
-        values.replace(14, 0);
-        values.replace(15, 0);
+        values2.replace(14, QBitArray(16));
+        values2.replace(15, QBitArray(16));
     }
     updateMatrixView();
 }

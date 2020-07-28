@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QMap>
 #include <QListWidgetItem>
+#include <QBitArray>
 
 namespace Ui {
 class CharacterGenerator;
@@ -41,6 +42,7 @@ private slots:
 private:
     Ui::CharacterGenerator *ui;
     enum CharsSource {User, Predefined};
+    QBitArray mask5x7;
     QList<uint16_t> values;
     QList<QBitArray> values2;
     QList<ClickableLabel *> dots;
