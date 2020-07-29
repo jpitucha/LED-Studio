@@ -14,7 +14,8 @@
 CharacterGenerator::CharacterGenerator(QWidget *parent) : QDialog(parent), ui(new Ui::CharacterGenerator) {
     ui->setupUi(this);
     mask5x7.resize(16);
-    for (int i = 0; i < 10; i++) { mask5x7.setBit(i, true); values2.append(QBitArray(16)); }
+    for (int i = 0; i < 10; i++) mask5x7.setBit(i, true);
+    for (int i = 0; i < 16; i++) values2.append(QBitArray(16));
 
     int row = 1;
     int col = 1;
@@ -187,13 +188,13 @@ void CharacterGenerator::loadMatrixView(int matrix) {
         for (int i = 186; i <= 191; i++) dots.at(i)->setEnabled(false);
         for (int i = 202; i <= 207; i++) dots.at(i)->setEnabled(false);
         for (int i = 218; i <= 255; i++) dots.at(i)->setEnabled(false);
-        for (int i = 0; i < values.size(); i++) {
-            uint16_t tmp = values.at(i);
-            tmp &= 0b1111111111000000;
-            values.replace(i, tmp);
+        for (int i = 0; i < values2.size() - 2; i++) {
+            QBitArray tmp = values2.at(i);
+            tmp &= mask5x7;
+            values2.replace(i, tmp);
         }
-        values.replace(14, 0);
-        values.replace(15, 0);
+        values2.replace(14, QBitArray(16));
+        values2.replace(15, QBitArray(16));
         update();
     } else { //8x8
         for (int i = 10; i <= 15; i++) dots.at(i)->setEnabled(true);
@@ -243,20 +244,23 @@ void CharacterGenerator::on_addChar_clicked() {
         }
         // to do - use bit array to string method
         QStringList x;
-        double d = 0;
+        //double d = 0;
         for(int i = 0; i < 16; i++) {
-            d = 0.0;
-            for(int j = 0; j < 16; j++) {
-                if (values2.at(i).testBit(j)) {
-                    d += pow(2, j);
-                }
-            }
-            x.append(QString::number(int(d)));
+//            d = 0.0;
+//            for(int j = 0; j < 16; j++) {
+//                if (values2.at(i).testBit(j)) {
+//                    d += pow(2, j);
+//                }
+//            }
+//            x.append(QString::number(int(d)));
+            x.append(bitArrayToString(values2.at(i)));
+            qDebug() << bitArrayToString(values2.at(i));
         }
         userChars.insert(name + " " + ui->comboBox->currentText(), x);
         ui->charsList->addItem(name + " " + ui->comboBox->currentText());
         saveUserCharsToFile();
         qDebug() << "saving user chars to file";
+        qDebug() << userChars;
     }
 }
 
